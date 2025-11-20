@@ -16,15 +16,16 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
+    projectNumber: '',
     name: '',
-    customer: '',
-    site: '',
-    value: '',
+    customerName: '',
+    siteName: '',
+    projectValue: '',
     currency: 'THB',
-    startDate: '',
+    contractDate: '',
     targetCompletionDate: '',
     architects: '',
-    status: 'active' as 'active' | 'completed' | 'on-hold' | 'delivered'
+    status: 'draft' as 'active' | 'completed' | 'on-hold' | 'delivered' | 'draft'
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -35,14 +36,14 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = 'Project name is required';
-    if (!formData.customer.trim()) newErrors.customer = 'Customer name is required';
-    if (!formData.site.trim()) newErrors.site = 'Site location is required';
-    if (!formData.value || parseFloat(formData.value) <= 0) newErrors.value = 'Valid project value is required';
-    if (!formData.startDate) newErrors.startDate = 'Start date is required';
+    if (!formData.customerName.trim()) newErrors.customerName = 'Customer name is required';
+    if (!formData.siteName.trim()) newErrors.siteName = 'Site location is required';
+    if (!formData.projectValue || parseFloat(formData.projectValue) <= 0) newErrors.projectValue = 'Valid project value is required';
+    if (!formData.contractDate) newErrors.contractDate = 'Start date is required';
 
     // Validate date order if both dates are provided
-    if (formData.startDate && formData.targetCompletionDate) {
-      if (new Date(formData.startDate) >= new Date(formData.targetCompletionDate)) {
+    if (formData.contractDate && formData.targetCompletionDate) {
+      if (new Date(formData.contractDate) >= new Date(formData.targetCompletionDate)) {
         newErrors.targetCompletionDate = 'Target date must be after start date';
       }
     }
@@ -109,14 +110,18 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
       ];
 
       const projectData = {
+        projectNumber: formData.projectNumber.trim() || undefined,
         name: formData.name.trim(),
-        customer: formData.customer.trim(),
-        site: formData.site.trim(),
-        value: parseFloat(formData.value),
+        customerName: formData.customerName.trim(),
+        siteName: formData.siteName.trim(),
+        projectValue: parseFloat(formData.projectValue),
         currency: formData.currency,
-        contractStartDate: formData.startDate,
-        contractEndDate: formData.targetCompletionDate || formData.startDate,
-        architects: formData.architects.trim() ? formData.architects.split(',').map(a => a.trim()).filter(a => a) : [formData.customer.trim()],
+        contractDate: formData.contractDate,
+        contractDeliveryDate: formData.contractDate,
+        targetCompletionDate: formData.targetCompletionDate || undefined,
+        projectArchitect: formData.architects.trim() ? formData.architects.split(',')[0].trim() : formData.customerName.trim(),
+        designConsultant: formData.architects.trim() && formData.architects.split(',').length > 1 ? formData.architects.split(',')[1].trim() : undefined,
+        architects: formData.architects.trim() ? formData.architects.split(',').map(a => a.trim()).filter(a => a) : [formData.customerName.trim()],
         currentPhase: 1,
         status: formData.status,
         phases: defaultPhases,
@@ -144,15 +149,16 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
       // Reset form after navigation
       setTimeout(() => {
         setFormData({
+          projectNumber: '',
           name: '',
-          customer: '',
-          site: '',
-          value: '',
+          customerName: '',
+          siteName: '',
+          projectValue: '',
           currency: 'THB',
-          startDate: '',
+          contractDate: '',
           targetCompletionDate: '',
           architects: '',
-          status: 'active' as 'active' | 'completed' | 'on-hold' | 'delivered'
+          status: 'draft' as 'active' | 'completed' | 'on-hold' | 'delivered' | 'draft'
         });
         setShowSuccess(false);
       }, 1000);
@@ -166,15 +172,16 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
 
   const handleClose = () => {
     setFormData({
+      projectNumber: '',
       name: '',
-      customer: '',
-      site: '',
-      value: '',
+      customerName: '',
+      siteName: '',
+      projectValue: '',
       currency: 'THB',
-      startDate: '',
+      contractDate: '',
       targetCompletionDate: '',
       architects: '',
-      status: 'active'
+      status: 'draft'
     });
     setErrors({});
     onClose();
@@ -220,6 +227,21 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
             )}
 
             <div className="space-y-5">
+              {/* Project Number */}
+              <div>
+                <label htmlFor="projectNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  Project Number <span className="text-gray-400 text-xs">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  id="projectNumber"
+                  value={formData.projectNumber}
+                  onChange={(e) => setFormData({ ...formData, projectNumber: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-all"
+                  placeholder="e.g., 202500001"
+                />
+              </div>
+
               {/* Project Name */}
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -240,59 +262,59 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
 
               {/* Customer Name */}
               <div>
-                <label htmlFor="customer" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
                   Customer Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="customer"
-                  value={formData.customer}
-                  onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
+                  id="customerName"
+                  value={formData.customerName}
+                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.customer ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    errors.customerName ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                   placeholder="e.g., Sarah Johnson"
                 />
-                {errors.customer && <p className="mt-1 text-sm text-red-600">{errors.customer}</p>}
+                {errors.customerName && <p className="mt-1 text-sm text-red-600">{errors.customerName}</p>}
               </div>
 
               {/* Site Location */}
               <div>
-                <label htmlFor="site" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="siteName" className="block text-sm font-medium text-gray-700 mb-1">
                   Site Location <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="site"
-                  value={formData.site}
-                  onChange={(e) => setFormData({ ...formData, site: e.target.value })}
+                  id="siteName"
+                  value={formData.siteName}
+                  onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.site ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    errors.siteName ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                   placeholder="e.g., Bangkok, Thailand"
                 />
-                {errors.site && <p className="mt-1 text-sm text-red-600">{errors.site}</p>}
+                {errors.siteName && <p className="mt-1 text-sm text-red-600">{errors.siteName}</p>}
               </div>
 
               {/* Project Value and Currency */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
-                  <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="projectValue" className="block text-sm font-medium text-gray-700 mb-1">
                     Project Value <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
-                    id="value"
-                    value={formData.value}
-                    onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                    id="projectValue"
+                    value={formData.projectValue}
+                    onChange={(e) => setFormData({ ...formData, projectValue: e.target.value })}
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.value ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      errors.projectValue ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="e.g., 25000000"
                     min="0"
                     step="1000"
                   />
-                  {errors.value && <p className="mt-1 text-sm text-red-600">{errors.value}</p>}
+                  {errors.projectValue && <p className="mt-1 text-sm text-red-600">{errors.projectValue}</p>}
                 </div>
                 <div>
                   <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-1">
@@ -330,21 +352,21 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
 
               {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
-                {/* Start Date */}
+                {/* Contract Date */}
                 <div>
-                  <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date <span className="text-red-500">*</span>
+                  <label htmlFor="contractDate" className="block text-sm font-medium text-gray-700 mb-1">
+                    Contract Date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
-                    id="startDate"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    id="contractDate"
+                    value={formData.contractDate}
+                    onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.startDate ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      errors.contractDate ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   />
-                  {errors.startDate && <p className="mt-1 text-sm text-red-600">{errors.startDate}</p>}
+                  {errors.contractDate && <p className="mt-1 text-sm text-red-600">{errors.contractDate}</p>}
                 </div>
 
                 {/* Target Completion Date */}
@@ -373,9 +395,10 @@ export default function AddProjectModal({ isOpen, onClose, onSuccess }: AddProje
                 <select
                   id="status"
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'completed' | 'on-hold' | 'delivered' })}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'completed' | 'on-hold' | 'delivered' | 'draft' })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 bg-white transition-all cursor-pointer"
                 >
+                  <option value="draft">Draft</option>
                   <option value="active">Active</option>
                   <option value="on-hold">On Hold</option>
                 </select>

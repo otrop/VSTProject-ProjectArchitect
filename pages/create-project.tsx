@@ -28,15 +28,15 @@ export default function CreateProject() {
   const [formData, setFormData] = useState({
     // Basic Info
     name: '',
-    customer: '',
-    site: '',
+    customerName: '',
+    siteName: '',
     description: '',
     
     // Financial Info  
-    value: '',
+    projectValue: '',
     currency: 'USD',
-    contractStartDate: '',
-    contractEndDate: '',
+    contractDate: '',
+    contractDeliveryDate: '',
     
     // Team & Status
     architects: [''],
@@ -55,17 +55,17 @@ export default function CreateProject() {
 
     if (step === 1) {
       if (!formData.name.trim()) newErrors.name = 'Project name is required';
-      if (!formData.customer.trim()) newErrors.customer = 'Customer is required';
-      if (!formData.site.trim()) newErrors.site = 'Site location is required';
+      if (!formData.customerName.trim()) newErrors.customer = 'Customer is required';
+      if (!formData.siteName.trim()) newErrors.site = 'Site location is required';
     }
 
     if (step === 2) {
-      if (!formData.value || parseFloat(formData.value) <= 0) newErrors.value = 'Valid project value is required';
-      if (!formData.contractStartDate) newErrors.contractStartDate = 'Contract start date is required';
-      if (!formData.contractEndDate) newErrors.contractEndDate = 'Contract end date is required';
+      if (!formData.projectValue || parseFloat(formData.projectValue) <= 0) newErrors.value = 'Valid project value is required';
+      if (!formData.contractDate) newErrors.contractStartDate = 'Contract start date is required';
+      if (!formData.contractDeliveryDate) newErrors.contractEndDate = 'Contract end date is required';
       
-      if (formData.contractStartDate && formData.contractEndDate) {
-        if (new Date(formData.contractStartDate) >= new Date(formData.contractEndDate)) {
+      if (formData.contractDate && formData.contractDeliveryDate) {
+        if (new Date(formData.contractDate) >= new Date(formData.contractDeliveryDate)) {
           newErrors.contractEndDate = 'End date must be after start date';
         }
       }
@@ -161,12 +161,14 @@ export default function CreateProject() {
 
       const projectData = {
         name: formData.name.trim(),
-        customer: formData.customer.trim(),
-        site: formData.site.trim(),
-        value: parseFloat(formData.value),
+        customerName: formData.customerName.trim(),
+        siteName: formData.siteName.trim(),
+        projectValue: parseFloat(formData.projectValue),
         currency: formData.currency,
-        contractStartDate: formData.contractStartDate,
-        contractEndDate: formData.contractEndDate,
+        contractDate: formData.contractDate,
+        contractDeliveryDate: formData.contractDeliveryDate,
+        projectArchitect: formData.architects.filter(arch => arch.trim()).map(arch => arch.trim())[0] || formData.customerName.trim(),
+        designConsultant: formData.architects.filter(arch => arch.trim()).map(arch => arch.trim())[1] || undefined,
         architects: formData.architects.filter(arch => arch.trim()).map(arch => arch.trim()),
         currentPhase: 1,
         status: formData.status,
@@ -243,14 +245,14 @@ export default function CreateProject() {
                 <input
                   type="text"
                   id="customer"
-                  value={formData.customer}
-                  onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
+                  value={formData.customerName}
+                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    errors.customer ? 'border-red-300' : 'border-gray-300'
+                    errors.customerName ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Enter customer name"
                 />
-                {errors.customer && <p className="mt-1 text-sm text-red-600">{errors.customer}</p>}
+                {errors.customerName && <p className="mt-1 text-sm text-red-600">{errors.customerName}</p>}
               </div>
 
               {/* Site Location */}
@@ -262,14 +264,14 @@ export default function CreateProject() {
                 <input
                   type="text"
                   id="site"
-                  value={formData.site}
-                  onChange={(e) => setFormData({ ...formData, site: e.target.value })}
+                  value={formData.siteName}
+                  onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    errors.site ? 'border-red-300' : 'border-gray-300'
+                    errors.siteName ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Enter site location"
                 />
-                {errors.site && <p className="mt-1 text-sm text-red-600">{errors.site}</p>}
+                {errors.siteName && <p className="mt-1 text-sm text-red-600">{errors.siteName}</p>}
               </div>
 
               {/* Project Type */}
@@ -327,16 +329,16 @@ export default function CreateProject() {
                 <input
                   type="number"
                   id="value"
-                  value={formData.value}
-                  onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                  value={formData.projectValue}
+                  onChange={(e) => setFormData({ ...formData, projectValue: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    errors.value ? 'border-red-300' : 'border-gray-300'
+                    errors.projectValue ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="Enter project value"
                   min="0"
                   step="0.01"
                 />
-                {errors.value && <p className="mt-1 text-sm text-red-600">{errors.value}</p>}
+                {errors.projectValue && <p className="mt-1 text-sm text-red-600">{errors.projectValue}</p>}
               </div>
 
               {/* Currency */}
@@ -366,13 +368,13 @@ export default function CreateProject() {
                 <input
                   type="date"
                   id="contractStartDate"
-                  value={formData.contractStartDate}
-                  onChange={(e) => setFormData({ ...formData, contractStartDate: e.target.value })}
+                  value={formData.contractDate}
+                  onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    errors.contractStartDate ? 'border-red-300' : 'border-gray-300'
+                    errors.contractDate ? 'border-red-300' : 'border-gray-300'
                   }`}
                 />
-                {errors.contractStartDate && <p className="mt-1 text-sm text-red-600">{errors.contractStartDate}</p>}
+                {errors.contractDate && <p className="mt-1 text-sm text-red-600">{errors.contractDate}</p>}
               </div>
 
               {/* Contract End Date */}
@@ -384,13 +386,13 @@ export default function CreateProject() {
                 <input
                   type="date"
                   id="contractEndDate"
-                  value={formData.contractEndDate}
-                  onChange={(e) => setFormData({ ...formData, contractEndDate: e.target.value })}
+                  value={formData.contractDeliveryDate}
+                  onChange={(e) => setFormData({ ...formData, contractDeliveryDate: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    errors.contractEndDate ? 'border-red-300' : 'border-gray-300'
+                    errors.contractDeliveryDate ? 'border-red-300' : 'border-gray-300'
                   }`}
                 />
-                {errors.contractEndDate && <p className="mt-1 text-sm text-red-600">{errors.contractEndDate}</p>}
+                {errors.contractDeliveryDate && <p className="mt-1 text-sm text-red-600">{errors.contractDeliveryDate}</p>}
               </div>
 
               {/* Estimated Duration */}
@@ -622,3 +624,4 @@ export default function CreateProject() {
     </div>
   );
 }
+

@@ -23,6 +23,20 @@ export function useProjects() {
         // Dynamic import to avoid SSR issues
         const { mockProjects } = await import('@/data/mockData');
         
+        // Migration function to convert old field names to new ones
+        const migrateProject = (project: any): Project => {
+          return {
+            ...project,
+            customerName: project.customerName || project.customer || '',
+            siteName: project.siteName || project.site || '',
+            projectValue: project.projectValue || project.value || 0,
+            contractDate: project.contractDate || project.contractStartDate || '',
+            contractDeliveryDate: project.contractDeliveryDate || project.contractEndDate || '',
+            projectArchitect: project.projectArchitect || project.architects?.[0] || '',
+            designConsultant: project.designConsultant || project.architects?.[1] || undefined,
+          };
+        };
+        
         // Check localStorage only on client side
         const storedProjects = typeof window !== 'undefined' 
           ? localStorage.getItem('projectarchitect_projects')
@@ -39,7 +53,10 @@ export function useProjects() {
             const parsed = JSON.parse(storedProjects);
             // Only use stored data if it's an array with at least one project
             if (Array.isArray(parsed) && parsed.length > 0) {
-              projectsToLoad = parsed;
+              // Migrate old data format to new format
+              projectsToLoad = parsed.map(migrateProject);
+              // Save migrated data back to localStorage
+              localStorage.setItem('projectarchitect_projects', JSON.stringify(projectsToLoad));
             } else {
               // If stored data is empty or invalid, use mock data and save it
               console.log('Stored projects empty or invalid, loading mock data');

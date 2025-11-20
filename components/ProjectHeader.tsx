@@ -57,7 +57,7 @@ export default function ProjectHeader({ project, onEdit }: ProjectHeaderProps) {
         </div>
         <div className="mt-4 lg:mt-0 lg:ml-6">
           <div className="text-2xl font-bold text-primary-600">
-            {formatCurrency(project.value, project.currency)}
+            {formatCurrency(project.projectValue, project.currency)}
           </div>
           <div className="text-sm text-gray-500">Project Value</div>
         </div>
@@ -73,7 +73,7 @@ export default function ProjectHeader({ project, onEdit }: ProjectHeaderProps) {
           </div>
           <div>
             <dt className="text-sm font-medium text-gray-500">Customer</dt>
-            <dd className="text-sm font-semibold text-gray-900">{project.customer}</dd>
+            <dd className="text-sm font-semibold text-gray-900">{project.customerName}</dd>
           </div>
         </div>
 
@@ -86,7 +86,7 @@ export default function ProjectHeader({ project, onEdit }: ProjectHeaderProps) {
           </div>
           <div>
             <dt className="text-sm font-medium text-gray-500">Site Location</dt>
-            <dd className="text-sm font-semibold text-gray-900">{project.site}</dd>
+            <dd className="text-sm font-semibold text-gray-900">{project.siteName}</dd>
           </div>
         </div>
 
@@ -100,7 +100,7 @@ export default function ProjectHeader({ project, onEdit }: ProjectHeaderProps) {
           <div>
             <dt className="text-sm font-medium text-gray-500">Contract Period</dt>
             <dd className="text-sm font-semibold text-gray-900">
-              {formatDate(project.contractStartDate)} - {formatDate(project.contractEndDate)}
+              {formatDate(project.contractDate)} - {formatDate(project.contractDeliveryDate)}
             </dd>
           </div>
         </div>

@@ -11,15 +11,15 @@ interface EditProjectModalProps {
 
 export default function EditProjectModal({ isOpen, onClose, project, onSave }: EditProjectModalProps) {
   const [formData, setFormData] = useState({
-    name: project.name,
-    customer: project.customer,
-    site: project.site,
-    value: project.value.toString(),
-    currency: project.currency,
-    contractStartDate: project.contractStartDate,
-    contractEndDate: project.contractEndDate,
-    architects: project.architects.join(', '),
-    status: project.status
+    name: project.name || '',
+    customerName: project.customerName || '',
+    siteName: project.siteName || '',
+    projectValue: project.projectValue?.toString() || '0',
+    currency: project.currency || 'THB',
+    contractDate: project.contractDate || '',
+    contractDeliveryDate: project.contractDeliveryDate || '',
+    architects: project.architects?.join(', ') || '',
+    status: project.status || 'active'
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -31,16 +31,16 @@ export default function EditProjectModal({ isOpen, onClose, project, onSave }: E
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) newErrors.name = 'Project name is required';
-    if (!formData.customer.trim()) newErrors.customer = 'Customer name is required';
-    if (!formData.site.trim()) newErrors.site = 'Site location is required';
-    if (!formData.value || parseFloat(formData.value) <= 0) newErrors.value = 'Valid project value is required';
-    if (!formData.contractStartDate) newErrors.contractStartDate = 'Start date is required';
-    if (!formData.contractEndDate) newErrors.contractEndDate = 'End date is required';
+    if (!formData.customerName.trim()) newErrors.customerName = 'Customer name is required';
+    if (!formData.siteName.trim()) newErrors.siteName = 'Site location is required';
+    if (!formData.projectValue || parseFloat(formData.projectValue) <= 0) newErrors.projectValue = 'Valid project value is required';
+    if (!formData.contractDate) newErrors.contractDate = 'Contract date is required';
+    if (!formData.contractDeliveryDate) newErrors.contractDeliveryDate = 'Delivery date is required';
 
     // Validate date order
-    if (formData.contractStartDate && formData.contractEndDate) {
-      if (new Date(formData.contractStartDate) >= new Date(formData.contractEndDate)) {
-        newErrors.contractEndDate = 'End date must be after start date';
+    if (formData.contractDate && formData.contractDeliveryDate) {
+      if (new Date(formData.contractDate) >= new Date(formData.contractDeliveryDate)) {
+        newErrors.contractDeliveryDate = 'Delivery date must be after contract date';
       }
     }
 
@@ -58,15 +58,15 @@ export default function EditProjectModal({ isOpen, onClose, project, onSave }: E
     const updatedProject: Project = {
       ...project,
       name: formData.name.trim(),
-      customer: formData.customer.trim(),
-      site: formData.site.trim(),
-      value: parseFloat(formData.value),
+      customerName: formData.customerName.trim(),
+      siteName: formData.siteName.trim(),
+      projectValue: parseFloat(formData.projectValue),
       currency: formData.currency,
-      contractStartDate: formData.contractStartDate,
-      contractEndDate: formData.contractEndDate,
+      contractDate: formData.contractDate,
+      contractDeliveryDate: formData.contractDeliveryDate,
       architects: formData.architects.trim() 
         ? formData.architects.split(',').map(a => a.trim()).filter(a => a) 
-        : [formData.customer.trim()],
+        : [formData.customerName.trim()],
       status: formData.status as 'active' | 'completed' | 'on-hold' | 'delivered'
     };
 
@@ -77,15 +77,15 @@ export default function EditProjectModal({ isOpen, onClose, project, onSave }: E
 
   const handleClose = () => {
     setFormData({
-      name: project.name,
-      customer: project.customer,
-      site: project.site,
-      value: project.value.toString(),
-      currency: project.currency,
-      contractStartDate: project.contractStartDate,
-      contractEndDate: project.contractEndDate,
-      architects: project.architects.join(', '),
-      status: project.status
+      name: project.name || '',
+      customerName: project.customerName || '',
+      siteName: project.siteName || '',
+      projectValue: project.projectValue?.toString() || '0',
+      currency: project.currency || 'THB',
+      contractDate: project.contractDate || '',
+      contractDeliveryDate: project.contractDeliveryDate || '',
+      architects: project.architects?.join(', ') || '',
+      status: project.status || 'active'
     });
     setErrors({});
     onClose();
@@ -142,59 +142,59 @@ export default function EditProjectModal({ isOpen, onClose, project, onSave }: E
 
               {/* Customer Name */}
               <div>
-                <label htmlFor="customer" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
                   Customer Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="customer"
-                  value={formData.customer}
-                  onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
+                  id="customerName"
+                  value={formData.customerName}
+                  onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.customer ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    errors.customerName ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                   placeholder="e.g., Sarah Johnson"
                 />
-                {errors.customer && <p className="mt-1 text-sm text-red-600">{errors.customer}</p>}
+                {errors.customerName && <p className="mt-1 text-sm text-red-600">{errors.customerName}</p>}
               </div>
 
               {/* Site Location */}
               <div>
-                <label htmlFor="site" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="siteName" className="block text-sm font-medium text-gray-700 mb-1">
                   Site Location <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  id="site"
-                  value={formData.site}
-                  onChange={(e) => setFormData({ ...formData, site: e.target.value })}
+                  id="siteName"
+                  value={formData.siteName}
+                  onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.site ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                    errors.siteName ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                   }`}
                   placeholder="e.g., Bangkok, Thailand"
                 />
-                {errors.site && <p className="mt-1 text-sm text-red-600">{errors.site}</p>}
+                {errors.siteName && <p className="mt-1 text-sm text-red-600">{errors.siteName}</p>}
               </div>
 
               {/* Project Value and Currency */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
-                  <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="projectValue" className="block text-sm font-medium text-gray-700 mb-1">
                     Project Value <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
-                    id="value"
-                    value={formData.value}
-                    onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                    id="projectValue"
+                    value={formData.projectValue}
+                    onChange={(e) => setFormData({ ...formData, projectValue: e.target.value })}
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.value ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      errors.projectValue ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                     placeholder="e.g., 25000000"
                     min="0"
                     step="1000"
                   />
-                  {errors.value && <p className="mt-1 text-sm text-red-600">{errors.value}</p>}
+                  {errors.projectValue && <p className="mt-1 text-sm text-red-600">{errors.projectValue}</p>}
                 </div>
                 <div>
                   <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-1">
@@ -232,35 +232,35 @@ export default function EditProjectModal({ isOpen, onClose, project, onSave }: E
               {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="contractStartDate" className="block text-sm font-medium text-gray-700 mb-1">
-                    Contract Start Date <span className="text-red-500">*</span>
+                  <label htmlFor="contractDate" className="block text-sm font-medium text-gray-700 mb-1">
+                    Contract Date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
-                    id="contractStartDate"
-                    value={formData.contractStartDate}
-                    onChange={(e) => setFormData({ ...formData, contractStartDate: e.target.value })}
+                    id="contractDate"
+                    value={formData.contractDate}
+                    onChange={(e) => setFormData({ ...formData, contractDate: e.target.value })}
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.contractStartDate ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      errors.contractDate ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   />
-                  {errors.contractStartDate && <p className="mt-1 text-sm text-red-600">{errors.contractStartDate}</p>}
+                  {errors.contractDate && <p className="mt-1 text-sm text-red-600">{errors.contractDate}</p>}
                 </div>
 
                 <div>
-                  <label htmlFor="contractEndDate" className="block text-sm font-medium text-gray-700 mb-1">
-                    Contract End Date <span className="text-red-500">*</span>
+                  <label htmlFor="contractDeliveryDate" className="block text-sm font-medium text-gray-700 mb-1">
+                    Contract Delivery Date <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="date"
-                    id="contractEndDate"
-                    value={formData.contractEndDate}
-                    onChange={(e) => setFormData({ ...formData, contractEndDate: e.target.value })}
+                    id="contractDeliveryDate"
+                    value={formData.contractDeliveryDate}
+                    onChange={(e) => setFormData({ ...formData, contractDeliveryDate: e.target.value })}
                     className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.contractEndDate ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                      errors.contractDeliveryDate ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                     }`}
                   />
-                  {errors.contractEndDate && <p className="mt-1 text-sm text-red-600">{errors.contractEndDate}</p>}
+                  {errors.contractDeliveryDate && <p className="mt-1 text-sm text-red-600">{errors.contractDeliveryDate}</p>}
                 </div>
               </div>
 

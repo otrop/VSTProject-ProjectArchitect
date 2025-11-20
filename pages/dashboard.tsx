@@ -32,7 +32,7 @@ export default function Dashboard() {
 
   // Calculate KPIs
   const activeProjects = projects.filter((p: Project) => p.status === 'active');
-  const totalValue = projects.reduce((sum: number, p: Project) => sum + p.value, 0);
+  const totalValue = projects.reduce((sum: number, p: Project) => sum + p.projectValue, 0);
   
   const projectsByPhase = {
     'Project Initiation': projects.filter((p: Project) => p.currentPhase === 1).length,
@@ -230,11 +230,11 @@ export default function Dashboard() {
                           {project.name}
                         </Link>
                         <p className="text-xs text-gray-500 mt-1">
-                          {project.customer} • {project.site}
+                          {project.customerName} • {project.siteName}
                         </p>
                         <div className="flex items-center mt-2 space-x-4 text-xs text-gray-500">
                           <span>Phase {project.currentPhase}/5</span>
-                          <span>{formatCurrency(project.value, project.currency)}</span>
+                          <span>{formatCurrency(project.projectValue, project.currency)}</span>
                           <span className="flex items-center">
                             <Users className="w-3 h-3 mr-1" />
                             {project.architects.length}

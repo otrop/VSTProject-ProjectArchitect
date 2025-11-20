@@ -1,15 +1,19 @@
 export interface Project {
   id: string;
+  projectNumber?: string;
   name: string;
-  customer: string;
-  site: string;
-  value: number;
+  customerName: string;
+  siteName: string;
+  projectValue: number;
   currency: string;
-  contractStartDate: string;
-  contractEndDate: string;
+  contractDate: string;
+  contractDeliveryDate: string;
+  targetCompletionDate?: string;
+  projectArchitect: string;
+  designConsultant?: string;
   architects: string[];
   currentPhase: number;
-  status: 'active' | 'completed' | 'on-hold' | 'delivered';
+  status: 'active' | 'completed' | 'on-hold' | 'delivered' | 'draft';
   phases: Phase[];
   activities: Activity[];
 }
@@ -59,6 +63,6 @@ export interface User {
 
 export type TaskStatus = 'todo' | 'in-progress' | 'completed';
 export type PhaseStatus = 'not-started' | 'in-progress' | 'completed';
-export type ProjectStatus = 'active' | 'completed' | 'on-hold' | 'delivered';
+export type ProjectStatus = 'active' | 'completed' | 'on-hold' | 'delivered' | 'draft';
 export type ActivityType = 'task_created' | 'task_completed' | 'task_assigned' | 'phase_started' | 'phase_completed' | 'project_delivered' | 'phase_moved' | 'project_created' | 'project_deleted';
 export type Priority = 'low' | 'medium' | 'high';

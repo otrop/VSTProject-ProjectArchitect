@@ -55,8 +55,8 @@ export default function ProjectsList() {
     let filtered = projects.filter((project: Project) => {
       const matchesSearch = 
         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.site.toLowerCase().includes(searchTerm.toLowerCase());
+        project.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.siteName.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesPhase = !selectedPhase || phaseNames[project.currentPhase - 1] === selectedPhase;
       const matchesArchitect = !selectedArchitect || project.architects.includes(selectedArchitect);
@@ -75,12 +75,12 @@ export default function ProjectsList() {
           bValue = b.name;
           break;
         case 'customer':
-          aValue = a.customer;
-          bValue = b.customer;
+          aValue = a.customerName;
+          bValue = b.customerName;
           break;
         case 'value':
-          aValue = a.value;
-          bValue = b.value;
+          aValue = a.projectValue;
+          bValue = b.projectValue;
           break;
         case 'phase':
           aValue = a.currentPhase;
@@ -103,7 +103,32 @@ export default function ProjectsList() {
     });
 
     return filtered;
-  }, [searchTerm, selectedPhase, selectedArchitect, sortBy, sortOrder]);
+  }, [projects, searchTerm, selectedPhase, selectedArchitect, sortBy, sortOrder]);
+
+  // Show loading state while hydrating
+  if (loading || !isClient) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <div>
+                <h1 className="text-2xl font-ap font-bold text-gray-900 tracking-tight">Projects</h1>
+                <p className="mt-1 text-sm text-gray-500">
+                  Manage and track all your architectural projects
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="text-lg text-gray-600">Loading projects...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Pagination
   const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
@@ -286,11 +311,11 @@ export default function ProjectsList() {
                         >
                           {project.name}
                         </Link>
-                        <div className="text-sm text-gray-500">{project.site}</div>
+                        <div className="text-sm text-gray-500">{project.siteName}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {project.customer}
+                      {project.customerName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
@@ -301,7 +326,7 @@ export default function ProjectsList() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatCurrency(project.value, project.currency)}
+                      {formatCurrency(project.projectValue, project.currency)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
